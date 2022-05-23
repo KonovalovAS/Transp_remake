@@ -1,5 +1,16 @@
 #include "transp_header.h"
 
+Random_solution::Random_solution(double p){
+    P = p;
+}
+
+mt19937 Random_solution::Mersenne = mt19937( static_cast<mt19937::result_type>(time(nullptr)) );
+uniform_real_distribution<> Random_solution::rnd = uniform_real_distribution<>{0,1};
+bool Random_solution::operator()(){
+    double tmp = rnd(Mersenne);
+    return tmp<P;
+}
+
 bool pt::operator==(const pt& right){
     return (this->id==right.id);
 }
@@ -74,6 +85,8 @@ double Solution::Calculate(){
     pt current = source;
     int carriage = capacity;
 
+    Random_solution rs(0.7);
+
     while(unvis_Num>0){
         /*
         cout << "BEGIN\n";
@@ -83,47 +96,66 @@ double Solution::Calculate(){
         cout << "\tunused_Veh: " << unused_Veh << "\n";
         */
 
-        /// (1) find the closest point to the current position
-        int next_index = 0;
-
+        /// sorting other points by distance to the current one
         auto comp = [&](const pt& pt1, const pt& pt2){
             return dist(pt1,current) < dist(pt2,current);
         };
         sort(pts.begin(), pts.end(), comp);
 
-        cout << "\t\tFound the next one!\n";
-        cout << "\t\t" << pts[next_index].id << " " << pts[next_index].demand << "\n";
+        /// seeking for the next point to head to:
+        int next_index = 0;
+        while(pts[next_index].demand >= carriage){
+            if (next_index < unvis_Num)
+                next_index++;
+            else break;
+        }
 
-        if( pts[next_index].demand <= carriage ){
+        //cout << "\t\tFound the next one!\n";
+        //cout << "\t\t" << pts[next_index].id << " " << pts[next_index].demand << "\n";
+
+        bool go = rs();
+        go = go || (current==source);
+        if(!go) cout << "HERE!\n";
+        if( (next_index < unvis_Num) && (pts[next_index].demand <= carriage) && go ){
             /// (2) go there, update the data
-            cout << "\tUpdating stuff.\n\n";
+            //cout << "\tUpdating stuff.\n\n";
             current = pts[next_index];
             carriage -= current.demand;
             pts.erase(pts.begin()+next_index,pts.begin()+next_index+1);
             unvis_Num -= 1;
         }
         else{
-            cout << "\tBack to the origin!\n\n";
+            //cout << "\tBack to the origin!\n\n";
             current = source;
             carriage = capacity;
             unused_Veh -= 1;
         }
         order.push_back(current);
 
-        /// (3) repeat 1-2, while there is still enough carriage in the vehicle
     }
 
+    if(unused_Veh<0){
+        order.resize(0);
+        return -1;
+    }
+
+    /// THE RESULT
+    /*
     cout << "\n";
     for(auto p: order)
         cout << p.id << ") " << p.x << " " << p.y << " " << p.demand << "\n";
     cout << "\n";
+    */
 
-    double cost = dist(source,order[0]);
+    sol_cost = dist(source,order[0]);
     for(int i=1; i<order.size(); i++){
-        cost += dist( order[i-1], order[i] );
+        sol_cost += dist( order[i-1], order[i] );
     }
-    cost += dist( *(order.end()-1), source );
-    cout << "Cost: " << cost;
+    sol_cost += dist( *(order.end()-1), source );
+
+    //cout << "Cost: " << sol_cost;
+
+    return sol_cost;
 }
 
 

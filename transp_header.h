@@ -3,7 +3,21 @@
 #include <vector>
 #include <algorithm>
 
+#include <random>
+#include <ctime>
+
 using namespace std;
+
+class Random_solution{
+    public:
+        Random_solution(double p = 0.5);
+        bool operator()();
+
+    private:
+        double P;
+        static mt19937 Mersenne;
+        static uniform_real_distribution<> rnd;
+};
 
 struct pt{
     int id;
