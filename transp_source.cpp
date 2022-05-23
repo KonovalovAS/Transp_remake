@@ -1,14 +1,12 @@
 #include "transp_header.h"
 
-Random_solution::Random_solution(double p){
-    P = p;
-}
+Random_solution::Random_solution(){}
 
 mt19937 Random_solution::Mersenne = mt19937( static_cast<mt19937::result_type>(time(nullptr)) );
 uniform_real_distribution<> Random_solution::rnd = uniform_real_distribution<>{0,1};
-bool Random_solution::operator()(){
-    double tmp = rnd(Mersenne);
-    return tmp<P;
+
+bool Random_solution::operator()(double P){
+    return (rnd(Mersenne) < P);
 }
 
 bool pt::operator==(const pt& right){
@@ -69,7 +67,10 @@ void Solution::show(){
     cout << "\n";
 }
 
-double Solution::Calculate(){
+double Solution::Calculate(double P1, double P2){
+
+    order.resize(0);
+    sol_cost = -1;
 
     /// (1) find the closest point to the current position
         // improvement: consider multiple options
@@ -85,16 +86,9 @@ double Solution::Calculate(){
     pt current = source;
     int carriage = capacity;
 
-    Random_solution rs(0.7);
+    Random_solution rs = Random_solution();
 
     while(unvis_Num>0){
-        /*
-        cout << "BEGIN\n";
-        cout << "\tCurrent: " << current.id << "\n";
-        cout << "\tCarriage: " << carriage << "\n";
-        cout << "\tunvis_Num: " << unvis_Num << "\n";
-        cout << "\tunused_Veh: " << unused_Veh << "\n";
-        */
 
         /// sorting other points by distance to the current one
         auto comp = [&](const pt& pt1, const pt& pt2){
@@ -105,27 +99,30 @@ double Solution::Calculate(){
         /// seeking for the next point to head to:
         int next_index = 0;
         while(pts[next_index].demand >= carriage){
-            if (next_index < unvis_Num)
+
+            next_index++;
+            if( rs(P1) ){
+                //cout << "1!\n";
                 next_index++;
-            else break;
+            }
+
+            if(next_index>=unvis_Num)
+                break;
         }
 
-        //cout << "\t\tFound the next one!\n";
-        //cout << "\t\t" << pts[next_index].id << " " << pts[next_index].demand << "\n";
-
-        bool go = rs();
+        bool go = rs(P2);
+        //if(!go) cout << "2_0!\n";
         go = go || (current==source);
-        if(!go) cout << "HERE!\n";
+        //if(!go) cout << "2_1!\n";
+
         if( (next_index < unvis_Num) && (pts[next_index].demand <= carriage) && go ){
             /// (2) go there, update the data
-            //cout << "\tUpdating stuff.\n\n";
             current = pts[next_index];
             carriage -= current.demand;
             pts.erase(pts.begin()+next_index,pts.begin()+next_index+1);
             unvis_Num -= 1;
         }
         else{
-            //cout << "\tBack to the origin!\n\n";
             current = source;
             carriage = capacity;
             unused_Veh -= 1;
@@ -144,6 +141,11 @@ double Solution::Calculate(){
     cout << "\n";
     for(auto p: order)
         cout << p.id << ") " << p.x << " " << p.y << " " << p.demand << "\n";
+    cout << "\n";
+    */
+    /*
+    for(auto p: order)
+        cout << p.id << " ";
     cout << "\n";
     */
 

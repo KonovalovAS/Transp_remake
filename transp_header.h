@@ -10,11 +10,10 @@ using namespace std;
 
 class Random_solution{
     public:
-        Random_solution(double p = 0.5);
-        bool operator()();
+        Random_solution();
+        bool operator()(double P);
 
     private:
-        double P;
         static mt19937 Mersenne;
         static uniform_real_distribution<> rnd;
 };
@@ -52,7 +51,7 @@ class Solution{
         void show();
         double sol_cost;
 
-        double Calculate();
+        double Calculate(double P1, double P2);
 
     private:
         int pt_Num, veh_Num, capacity;
