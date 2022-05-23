@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1653331673 source:d:\000 00 educ\ecm\ecm 4 сем\Транспортная\trnsp_attempt2\transp_source.cpp
+	"transp_header.h"
+
+1653331539 d:\000 00 educ\ecm\ecm 4 сем\Транспортная\trnsp_attempt2\transp_header.h
+	<iostream>
+	<cmath>
+	<vector>
+	<algorithm>
+
+1653331578 source:d:\000 00 educ\ecm\ecm 4 сем\Транспортная\trnsp_attempt2\main.cpp
+	"transp_header.h"
+	<fstream>
+
