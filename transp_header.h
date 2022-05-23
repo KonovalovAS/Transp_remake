@@ -36,12 +36,13 @@ class Solution{
         Solution();
         Solution(const Problem& P);
         void show();
+        double sol_cost;
 
-        void Calculate();
+        double Calculate();
 
     private:
         int pt_Num, veh_Num, capacity;
         pt source;
         vector<pt> points;
-        vector<int> order;
+        vector<pt> order;
 };
